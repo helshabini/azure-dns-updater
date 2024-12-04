@@ -5,11 +5,25 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build_and_publish_for_generic_platforms:
+  build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     steps:
-      - uses: actions/checkout@v3
-      - run: |
-          docker login --username nikosdelis --password ${{ secrets.PAT }} ghcr.io
-          docker build . --tag ghcr.io/nikosdelis/azure-dns-updater:latest
-          docker push ghcr.io/nikosdelis/azure-dns-updater:latest
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Docker Login
+        uses: docker/login-action@v3.3.0
+        with:
+          registry: https://ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          push: true
+          tags: ghcr.io/helshabini/azure-dns-updater:latest
+  
+  
